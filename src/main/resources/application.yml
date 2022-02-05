@@ -1,0 +1,11 @@
+server:
+  port: 8080
+  servlet:
+    context-path: "/api/libraries"
+
+spring:
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
