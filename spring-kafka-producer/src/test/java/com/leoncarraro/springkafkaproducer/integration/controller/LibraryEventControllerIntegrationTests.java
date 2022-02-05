@@ -76,17 +76,20 @@ class LibraryEventControllerIntegrationTests {
 				.build();
 
 		LibraryEvent event = LibraryEvent.builder() //
-				.id(null) //
+				.id(1L) //
 				.book(book) //
 				.build();
 
-		ResponseEntity<LibraryEvent> response = restTemplate.exchange(ENDPOINT, HttpMethod.POST, getRequestEntity(event), LibraryEvent.class);
+		ResponseEntity<LibraryEvent> response = restTemplate //
+				.exchange(ENDPOINT, HttpMethod.POST, getRequestEntity(event), LibraryEvent.class);
+
+		ConsumerRecord<Long, String> consumerRecord = KafkaTestUtils //
+				.getSingleRecord(consumer, KafkaTopicConstant.TOPIC_NAME);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-
-		ConsumerRecord<Long, String> consumerRecord = KafkaTestUtils.getSingleRecord(consumer, KafkaTopicConstant.TOPIC_NAME);
-
-		log.info(consumerRecord.toString());
+		assertThat(consumerRecord.topic()).isEqualTo(KafkaTopicConstant.TOPIC_NAME);
+		assertThat(consumerRecord.key()).isEqualTo(event.getId());
+		assertThat(consumerRecord.value()).isEqualTo("{\"id\":1,\"name\":\"Book name\",\"authorName\":\"Author name\"}");
 	}
 
 	private <T> HttpEntity<T> getRequestEntity(final T event) {
